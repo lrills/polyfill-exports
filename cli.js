@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import polyfill from './index.js'
 
 const [, , packagePath] = process.argv

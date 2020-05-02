@@ -27,10 +27,7 @@ const tests = {
       `module.exports = require('./lib/foo.js');\n`
     )
 
-    assert.equal(
-      fs.readlinkSync(`${pkgDirname}/bar`),
-      `${pkgDirname}/lib/bar/`
-    )
+    assert.equal(fs.readlinkSync(`${pkgDirname}/bar`), `./lib/bar`)
   },
 
   ['polyfill when duplicated file exist'](pkgDirname) {
@@ -57,10 +54,7 @@ const tests = {
       `module.exports = require('./lib/foo.js');\n`
     )
 
-    assert.equal(
-      fs.readlinkSync(`${pkgDirname}/bar`),
-      `${pkgDirname}/lib/bar/`
-    )
+    assert.equal(fs.readlinkSync(`${pkgDirname}/bar`), `./lib/bar`)
   },
 
   ['throw if folder symlink name conflict'](pkgDirname) {
@@ -159,17 +153,17 @@ const tests = {
 
     assert.equal(
       fs.readFileSync(`${pkgDirname}/deep/foo.js`, { encoding: 'utf8' }),
-      `module.exports = require('./lib/deep/foo.js');\n`
+      `module.exports = require('../lib/deep/foo.js');\n`
     )
 
     assert.equal(
       fs.readFileSync(`${pkgDirname}/really/deep/bar.js`, { encoding: 'utf8' }),
-      `module.exports = require('./lib/really/deep/bar.js');\n`
+      `module.exports = require('../../lib/really/deep/bar.js');\n`
     )
 
     assert.equal(
       fs.readlinkSync(`${pkgDirname}/really/deep/baz`),
-      `${pkgDirname}/lib/really/deep/baz/`
+      `../../lib/really/deep/baz`
     )
   }
 }

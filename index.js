@@ -1,3 +1,4 @@
+import { join as joinPath, relative as getRelativePath, dirname } from 'path'
 import {
   readFileSync,
   writeFileSync,
@@ -6,7 +7,6 @@ import {
   unlinkSync,
   mkdirSync,
 } from 'fs'
-import { join as joinPath, dirname } from 'path'
 
 export default function polifillSubpathExports(modulePath = process.cwd()) {
   const packageConfig = readFileSync(
@@ -20,48 +20,53 @@ export default function polifillSubpathExports(modulePath = process.cwd()) {
   if (exports) {
     for(const [subpath, target] of Object.entries(exports)) {
       if(subpath !== ".") {
-        const targetPath = typeof target === 'string'
+        const targetSubpath = typeof target === 'string'
           ? target
           : typeof target === 'object'
           ? target.require || target.node || target.default
           : undefined
 
-        if (targetPath) {
+        if (targetSubpath) {
           const entryDir = dirname(subpath)
           if (entryDir !== '.') {
             mkdirSync(joinPath(modulePath, entryDir), { recursive: true })
           }
 
+          let relativeTargetPath = getRelativePath(entryDir, targetSubpath)
+          if (relativeTargetPath[0] !== '.') {
+            relativeTargetPath = `./${relativeTargetPath}`
+          }
 
-          let relativeEntry;
+          let entrySubpath;
 
           if (subpath[subpath.length - 1] === '/') {
-            relativeEntry = subpath.slice(0, -1)
-            const absoluteEvtry = joinPath(modulePath, relativeEntry)
+            entrySubpath = subpath.slice(0, -1)
+            const linkFilePath = joinPath(modulePath, entrySubpath)
 
             let existedFileStat
             try{
-              existedFileStat = lstatSync(absoluteEvtry)
+              existedFileStat = lstatSync(linkFilePath)
             } catch {}
 
             if (existedFileStat) {
               if (existedFileStat.isSymbolicLink()) {
-                unlinkSync(absoluteEvtry)
+                unlinkSync(linkFilePath)
               } else {
-                throw new Error(`file ${absoluteEvtry} already exist`)
+                throw new Error(`file ${linkFilePath} already exist`)
               }
             }
 
-            symlinkSync(joinPath(modulePath, targetPath), absoluteEvtry)
+            symlinkSync(relativeTargetPath, linkFilePath)
           } else {
-            relativeEntry = `${subpath}.js`
+            entrySubpath = `${subpath}.js`
+
             writeFileSync(
-              joinPath(modulePath, relativeEntry),
-              `module.exports = require('${targetPath}');\n`
+              joinPath(modulePath, entrySubpath),
+              `module.exports = require('${relativeTargetPath}');\n`
             )
           }
 
-          results.push([relativeEntry, targetPath])
+          results.push([entrySubpath, targetSubpath])
         }
       }
     }

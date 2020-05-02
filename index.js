@@ -4,8 +4,9 @@ import {
   symlinkSync,
   lstatSync,
   unlinkSync,
+  mkdirSync,
 } from 'fs'
-import { join as joinPath, } from 'path'
+import { join as joinPath, dirname } from 'path'
 
 export default function polifillSubpathExports(modulePath = process.cwd()) {
   const packageConfig = readFileSync(
@@ -26,6 +27,12 @@ export default function polifillSubpathExports(modulePath = process.cwd()) {
           : undefined
 
         if (targetPath) {
+          const entryDir = dirname(subpath)
+          if (entryDir !== '.') {
+            mkdirSync(joinPath(modulePath, entryDir), { recursive: true })
+          }
+
+
           let relativeEntry;
 
           if (subpath[subpath.length - 1] === '/') {

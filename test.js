@@ -137,6 +137,41 @@ const tests = {
       `module.exports = require('./lib/baz.js');\n`
     )
   },
+
+  ['handle non-shallow path'](pkgDirname) {
+    fs.writeFileSync(`${pkgDirname}/package.json`, `{
+      "name": "polyfill-exports-testing",
+      "exports": {
+        "./deep/foo": "./lib/deep/foo.js",
+        "./really/deep/bar": "./lib/really/deep/bar.js",
+        "./really/deep/baz/": "./lib/really/deep/baz/"
+      }
+    }`)
+    fs.mkdirSync(`${pkgDirname}/lib/really/deep/baz/`, { recursive: true })
+
+    const result = polyfill(pkgDirname)
+
+    assert.deepEqual(result, [
+      ['./deep/foo.js', './lib/deep/foo.js'],
+      ['./really/deep/bar.js', './lib/really/deep/bar.js'],
+      ['./really/deep/baz', './lib/really/deep/baz/'],
+    ])
+
+    assert.equal(
+      fs.readFileSync(`${pkgDirname}/deep/foo.js`, { encoding: 'utf8' }),
+      `module.exports = require('./lib/deep/foo.js');\n`
+    )
+
+    assert.equal(
+      fs.readFileSync(`${pkgDirname}/really/deep/bar.js`, { encoding: 'utf8' }),
+      `module.exports = require('./lib/really/deep/bar.js');\n`
+    )
+
+    assert.equal(
+      fs.readlinkSync(`${pkgDirname}/really/deep/baz`),
+      `${pkgDirname}/lib/really/deep/baz/`
+    )
+  }
 }
 
 Object.entries(tests).forEach(([name, testFn]) => {

@@ -3,7 +3,7 @@ import { resolve as resolvePath } from 'path'
 import polyfill from './index.js'
 
 const [, , packagePath] = process.argv
-const absolutePkgPath = resolvePath(packagePath)
+const absolutePkgPath = resolvePath(packagePath || '.')
 const results = polyfill(absolutePkgPath)
 
 if (results.length > 0) {

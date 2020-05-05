@@ -1,6 +1,6 @@
 {
   "name": "polyfill-exports",
-  "version": "0.1.4",
+  "version": "0.2.0-beta",
   "type": "module",
   "description": "Create polyfill files to require subpath in ES package \"exports\" for nodejs 12 below.",
   "main": "index.js",
@@ -17,5 +17,8 @@
   },
   "engines": {
     "node": ">=13"
+  },
+  "dependencies": {
+    "meow": "^6.1.1"
   }
 }

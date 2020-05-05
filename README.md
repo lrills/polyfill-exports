@@ -1,6 +1,6 @@
 # polyfill-exports
 
-Polyfill ECMA package subpath exports for CommonJS require.
+Create polyfill files to require subpath in ES package "exports" for nodejs 12 below.
 
 ## Install
 
@@ -12,8 +12,18 @@ $ yarn add --dev polyfill-exports
 
 ## Usage
 
+### create polyfill files
+
 ```shell
 $ npx polyfill-exports
 # or
 $ yarn run polyfill-exports
+```
+
+### clear polyfill files
+
+```shell
+$ npx polyfill-exports --clear
+# or
+$ yarn run polyfill-exports --clear
 ```

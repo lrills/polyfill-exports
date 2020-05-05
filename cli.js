@@ -1,27 +1,63 @@
 #!/usr/bin/env node
 import { resolve as resolvePath } from 'path'
+import { createRequire } from "module";
 import polyfill from './polyfill.js'
+import clear from './clear.js'
 
-const [, , packagePath] = process.argv
-const absolutePkgPath = resolvePath(packagePath || '.')
-const results = polyfill(absolutePkgPath)
+const meow = createRequire(import.meta.url)("meow");
+const cli = meow(`
+    Usage
+      $ polyfill-exports [path]
 
-if (results.length > 0) {
-  console.log(`\nSubpath linking files are created under ${absolutePkgPath}:\n`)
+    Options
+      --clear  Clear all polyfill files instead of creation.
 
-  const maxEntryNameLen = results.reduce(
-    (maximum, [entryName]) => Math.max(maximum, entryName.length),
-    0
-  )
-
-  for(const [entryFile, targetPath] of results) {
-    const spacesForAlignment = ' '.repeat(maxEntryNameLen - entryFile.length)
-    console.log(
-      `\t${entryFile}${spacesForAlignment}  ->  ${targetPath}`
-    )
+    Examples
+      $ polyfill-exports ./my-package
+`,
+  {
+    flags: {
+      clear: { type: 'boolean' }
+    }
   }
+);
 
-  console.log(`\nplease make sure they are added to the VCS.\n`)
+const pkgPath = resolvePath(cli.input[0] || '.')
+
+if (cli.flags.clear) {
+  const results = clear(pkgPath)
+
+  if (results.length > 0) {
+    console.log(`\nPolyfill files are deleted under ${pkgPath}:\n`)
+
+    for(const file of results) {
+      console.log(`\t${file}`)
+    }
+
+    console.log(`\nplease add the changes into VCS.\n`)
+  } else {
+    console.log(`\nNo polyfill files to delete under "${pkgPath}".\n`)
+  }
 } else {
-  console.log(`No subpath exports under ${absolutePkgPath}`)
+  const results = polyfill(pkgPath)
+
+  if (results.length > 0) {
+    console.log(`\nPolyfill files are created under "${pkgPath}":\n`)
+
+    const maxEntryNameLen = results.reduce(
+      (maximum, [entryName]) => Math.max(maximum, entryName.length),
+      0
+    )
+
+    for(const [entryFile, targetPath] of results) {
+      const spacesForAlignment = ' '.repeat(maxEntryNameLen - entryFile.length)
+      console.log(
+        `\t${entryFile}${spacesForAlignment}  ->  ${targetPath}`
+      )
+    }
+
+    console.log(`\nplease add the changes into VCS.\n`)
+  } else {
+    console.log(`\nNo subpath exports under "${pkgPath}".\n`)
+  }
 }

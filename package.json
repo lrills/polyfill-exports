@@ -2,7 +2,7 @@
   "name": "polyfill-exports",
   "version": "0.1.4",
   "type": "module",
-  "description": "Polyfill ECMA package subpath exports for CommonJS require.",
+  "description": "Create polyfill files to require subpath in ES package \"exports\" for nodejs 12 below.",
   "main": "index.js",
   "bin": "./cli.js",
   "scripts": {

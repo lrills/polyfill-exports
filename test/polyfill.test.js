@@ -1,10 +1,8 @@
 import fs from 'fs'
-import os from 'os'
-import path from 'path'
 import assert from 'assert'
-import polyfill from './index.js'
+import polyfill from '../polyfill.js'
 
-const tests = {
+export default {
   ['first time polyfill'](pkgDirname) {
     fs.writeFileSync(`${pkgDirname}/package.json`, `{
       "name": "polyfill-exports-testing",
@@ -189,24 +187,3 @@ const tests = {
     })
   },
 }
-
-const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'exports-polyfill-test-'))
-
-Object.entries(tests).forEach(([name, testFn]) => {
-  for (const f of fs.readdirSync(tmpDir)) {
-    const tmpFile = `${tmpDir}/${f}`
-    if (fs.lstatSync(tmpFile).isDirectory()) {
-      fs.rmdirSync(tmpFile, { recursive: true })
-    } else {
-      fs.unlinkSync(tmpFile)
-    }
-  }
-
-  try {
-    testFn(tmpDir)
-    console.log(`✅  ${name}`)
-  } catch (err) {
-    console.log(`❌  ${name}\n`)
-    console.error(err)
-  }
-})

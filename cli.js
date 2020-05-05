@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { resolve as resolvePath } from 'path'
-import polyfill from './index.js'
+import polyfill from './polyfill.js'
 
 const [, , packagePath] = process.argv
 const absolutePkgPath = resolvePath(packagePath || '.')

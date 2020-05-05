@@ -67,6 +67,7 @@ export default function polifillExportsSubpath(pkgPath = '.') {
           try {
             if (lstatSync(joinPath(pkgPath, subpath)).isDirectory()) {
               entrySubpath = `${subpath}/index.js`
+              relativeTargetPath = joinPath('..', relativeTargetPath)
             }
           } catch {}
 

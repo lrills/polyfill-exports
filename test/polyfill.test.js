@@ -185,5 +185,25 @@ export default {
       './a/b/c.js': './lib/a/b/c.js',
       './a/b/d': './lib/a/b/d/'
     })
+
+    assert.equal(
+      fs.readFileSync(`${pkgDir}/a/index.js`, { encoding: 'utf8' }),
+      `module.exports = require('../lib/a/index.js');\n`
+    )
+
+    assert.equal(
+      fs.readFileSync(`${pkgDir}/a/b/index.js`, { encoding: 'utf8' }),
+      `module.exports = require('../../lib/a/b/index.js');\n`
+    )
+
+    assert.equal(
+      fs.readFileSync(`${pkgDir}/a/b/c.js`, { encoding: 'utf8' }),
+      `module.exports = require('../../lib/a/b/c.js');\n`
+    )
+
+    assert.equal(
+      fs.readlinkSync(`${pkgDir}/a/b/d`),
+      `../../lib/a/b/d`
+    )
   },
 }

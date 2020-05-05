@@ -5,7 +5,9 @@ import path from 'path'
 
 const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'exports-polyfill-test-'))
 
-const runTests = ({ default: tests }) => {
+const runTests = suite => ({ default: tests }) => {
+  console.log(`\n${suite}\n`)
+
   for (const [name, testFn] of Object.entries(tests)) {
     for (const f of fs.readdirSync(tmpDir)) {
       const tmpFile = `${tmpDir}/${f}`
@@ -31,5 +33,7 @@ const testSuites = fs.readdirSync(testDir).filter(f => f.match(/.test.js$/))
 
 let testing = Promise.resolve()
 for (const suite of testSuites) {
-  testing = testing.then(() => import(`${testDir}/${suite}`)).then(runTests)
+  testing = testing
+    .then(() => import(`${testDir}/${suite}`))
+    .then(runTests(suite))
 }

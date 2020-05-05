@@ -3,17 +3,17 @@ import assert from 'assert'
 import polyfill from '../polyfill.js'
 
 export default {
-  ['first time polyfill'](pkgDirname) {
-    fs.writeFileSync(`${pkgDirname}/package.json`, `{
+  ['first time polyfill'](pkgDir) {
+    fs.writeFileSync(`${pkgDir}/package.json`, `{
       "name": "polyfill-exports-testing",
       "exports": {
         "./foo": "./lib/foo.js",
         "./bar/": "./lib/bar/"
       }
     }`)
-    fs.mkdirSync(`${pkgDirname}/lib/bar/`, { recursive: true })
+    fs.mkdirSync(`${pkgDir}/lib/bar/`, { recursive: true })
 
-    const result = polyfill(pkgDirname)
+    const result = polyfill(pkgDir)
 
     assert.deepEqual(Object.fromEntries(result), {
       './foo.js': './lib/foo.js',
@@ -21,26 +21,26 @@ export default {
     })
 
     assert.equal(
-      fs.readFileSync(`${pkgDirname}/foo.js`, { encoding: 'utf8' }),
+      fs.readFileSync(`${pkgDir}/foo.js`, { encoding: 'utf8' }),
       `module.exports = require('./lib/foo.js');\n`
     )
 
-    assert.equal(fs.readlinkSync(`${pkgDirname}/bar`), `./lib/bar`)
+    assert.equal(fs.readlinkSync(`${pkgDir}/bar`), `./lib/bar`)
   },
 
-  ['polyfill when duplicated file exist'](pkgDirname) {
-    fs.writeFileSync(`${pkgDirname}/package.json`, `{
+  ['polyfill when duplicated file exist'](pkgDir) {
+    fs.writeFileSync(`${pkgDir}/package.json`, `{
       "name": "polyfill-exports-testing",
       "exports": {
         "./foo": "./lib/foo.js",
         "./bar/": "./lib/bar/"
       }
     }`)
-    fs.writeFileSync(`${pkgDirname}/foo.js`, 'module.exports=...')
-    fs.mkdirSync(`${pkgDirname}/lib/bar/`, { recursive: true })
-    fs.symlinkSync(`${pkgDirname}/lib/bar/`, `${pkgDirname}/bar`)
+    fs.writeFileSync(`${pkgDir}/foo.js`, 'module.exports=...')
+    fs.mkdirSync(`${pkgDir}/lib/bar/`, { recursive: true })
+    fs.symlinkSync(`${pkgDir}/lib/bar/`, `${pkgDir}/bar`)
 
-    const result = polyfill(pkgDirname)
+    const result = polyfill(pkgDir)
 
     assert.deepEqual(Object.fromEntries(result), {
       './foo.js': './lib/foo.js',
@@ -48,30 +48,30 @@ export default {
     })
 
     assert.equal(
-      fs.readFileSync(`${pkgDirname}/foo.js`, { encoding: 'utf8' }),
+      fs.readFileSync(`${pkgDir}/foo.js`, { encoding: 'utf8' }),
       `module.exports = require('./lib/foo.js');\n`
     )
 
-    assert.equal(fs.readlinkSync(`${pkgDirname}/bar`), `./lib/bar`)
+    assert.equal(fs.readlinkSync(`${pkgDir}/bar`), `./lib/bar`)
   },
 
-  ['throw if folder symlink name conflict'](pkgDirname) {
-    fs.writeFileSync(`${pkgDirname}/package.json`, `{
+  ['throw if folder symlink name conflict'](pkgDir) {
+    fs.writeFileSync(`${pkgDir}/package.json`, `{
       "name": "polyfill-exports-testing",
       "exports": {
         "./foo/": "./lib/foo/"
       }
     }`)
-    fs.writeFileSync(`${pkgDirname}/foo`, '...')
+    fs.writeFileSync(`${pkgDir}/foo`, '...')
 
     assert.throws(
-      () => polyfill(pkgDirname),
-      { message: `file ${pkgDirname}/foo already exist` }
+      () => polyfill(pkgDir),
+      { message: `file ${pkgDir}/foo already exist` }
     )
   },
 
-  ['ignore "."'](pkgDirname) {
-    fs.writeFileSync(`${pkgDirname}/package.json`, `{
+  ['ignore "."'](pkgDir) {
+    fs.writeFileSync(`${pkgDir}/package.json`, `{
       "name": "polyfill-exports-testing",
       "exports": {
         ".": "./lib/index.js",
@@ -79,13 +79,13 @@ export default {
       }
     }`)
 
-    const result = polyfill(pkgDirname)
+    const result = polyfill(pkgDir)
 
     assert.deepEqual(result, [['./foo.js', './lib/foo.js']])
   },
 
-  ['conditional export order'](pkgDirname) {
-    fs.writeFileSync(`${pkgDirname}/package.json`, `{
+  ['conditional export order'](pkgDir) {
+    fs.writeFileSync(`${pkgDir}/package.json`, `{
       "name": "polyfill-exports-testing",
       "exports": {
         "./foo": {
@@ -104,9 +104,9 @@ export default {
       }
     }`)
 
-    fs.mkdirSync(`${pkgDirname}/lib/baz/`, { recursive: true })
+    fs.mkdirSync(`${pkgDir}/lib/baz/`, { recursive: true })
 
-    const result = polyfill(pkgDirname)
+    const result = polyfill(pkgDir)
 
     assert.deepEqual(Object.fromEntries(result), {
       './foo.js': './lib/foo.cjs',
@@ -115,23 +115,23 @@ export default {
     })
 
     assert.equal(
-      fs.readFileSync(`${pkgDirname}/foo.js`, { encoding: 'utf8' }),
+      fs.readFileSync(`${pkgDir}/foo.js`, { encoding: 'utf8' }),
       `module.exports = require('./lib/foo.cjs');\n`
     )
 
     assert.equal(
-      fs.readFileSync(`${pkgDirname}/bar.js`, { encoding: 'utf8' }),
+      fs.readFileSync(`${pkgDir}/bar.js`, { encoding: 'utf8' }),
       `module.exports = require('./lib/bar.js');\n`
     )
 
     assert.equal(
-      fs.readFileSync(`${pkgDirname}/baz.js`, { encoding: 'utf8' }),
+      fs.readFileSync(`${pkgDir}/baz.js`, { encoding: 'utf8' }),
       `module.exports = require('./lib/baz.js');\n`
     )
   },
 
-  ['handle non-shallow path'](pkgDirname) {
-    fs.writeFileSync(`${pkgDirname}/package.json`, `{
+  ['handle non-shallow path'](pkgDir) {
+    fs.writeFileSync(`${pkgDir}/package.json`, `{
       "name": "polyfill-exports-testing",
       "exports": {
         "./deep/foo": "./lib/deep/foo.js",
@@ -139,9 +139,9 @@ export default {
         "./really/deep/baz/": "./lib/really/deep/baz/"
       }
     }`)
-    fs.mkdirSync(`${pkgDirname}/lib/really/deep/baz/`, { recursive: true })
+    fs.mkdirSync(`${pkgDir}/lib/really/deep/baz/`, { recursive: true })
 
-    const result = polyfill(pkgDirname)
+    const result = polyfill(pkgDir)
 
     assert.deepEqual(Object.fromEntries(result), {
       './deep/foo.js': './lib/deep/foo.js',
@@ -150,23 +150,23 @@ export default {
     })
 
     assert.equal(
-      fs.readFileSync(`${pkgDirname}/deep/foo.js`, { encoding: 'utf8' }),
+      fs.readFileSync(`${pkgDir}/deep/foo.js`, { encoding: 'utf8' }),
       `module.exports = require('../lib/deep/foo.js');\n`
     )
 
     assert.equal(
-      fs.readFileSync(`${pkgDirname}/really/deep/bar.js`, { encoding: 'utf8' }),
+      fs.readFileSync(`${pkgDir}/really/deep/bar.js`, { encoding: 'utf8' }),
       `module.exports = require('../../lib/really/deep/bar.js');\n`
     )
 
     assert.equal(
-      fs.readlinkSync(`${pkgDirname}/really/deep/baz`),
+      fs.readlinkSync(`${pkgDir}/really/deep/baz`),
       `../../lib/really/deep/baz`
     )
   },
 
-  ['use ./subpath/index.js if there is other path exports under ./subpath'](pkgDirname) {
-    fs.writeFileSync(`${pkgDirname}/package.json`, `{
+  ['use ./subpath/index.js if there is other path exports under ./subpath'](pkgDir) {
+    fs.writeFileSync(`${pkgDir}/package.json`, `{
       "name": "polyfill-exports-testing",
       "exports": {
         "./a": "./lib/a/index.js",
@@ -175,9 +175,9 @@ export default {
         "./a/b/d/": "./lib/a/b/d/"
       }
     }`)
-    fs.mkdirSync(`${pkgDirname}/lib/a/b/d/`, { recursive: true })
+    fs.mkdirSync(`${pkgDir}/lib/a/b/d/`, { recursive: true })
 
-    const result = polyfill(pkgDirname)
+    const result = polyfill(pkgDir)
 
     assert.deepEqual(Object.fromEntries(result), {
       './a/index.js': './lib/a/index.js',

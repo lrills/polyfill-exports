@@ -8,7 +8,7 @@ import {
   mkdirSync,
 } from 'fs'
 
-export default function polifillExportsSubpath(pkgPath = process.cwd()) {
+export default function polifillExportsSubpath(pkgPath = '.') {
   const packageConfig = readFileSync(
     `${pkgPath}/package.json`,
     { encoding: 'utf8' }

@@ -1,6 +1,6 @@
 {
   "name": "polyfill-exports",
-  "version": "0.2.0-beta.1",
+  "version": "0.3.0-beta",
   "type": "module",
   "description": "Create a script to polyfill requiring ES package \"exports\" for nodejs 12 below.",
   "main": "index.js",

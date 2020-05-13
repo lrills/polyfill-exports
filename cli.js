@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-import { resolve as resolvePath } from 'path'
-import { createRequire } from "module";
-import polyfill from './polyfill.js'
-import clear from './clear.js'
+import { resolve as resolvePath, join as joinPath } from 'path'
+import { unlinkSync, writeFileSync } from 'fs'
+import { createRequire } from "module"
+import build from './build.js'
 
 const meow = createRequire(import.meta.url)("meow");
 const cli = meow(`
@@ -10,54 +10,30 @@ const cli = meow(`
       $ polyfill-exports [path]
 
     Options
-      --clear  Clear all polyfill files instead of creation.
+    --file, -f    File name of the script builded, default "polyfill-exports".
+    --delete, -d  Delete the polyfill script file
 
     Examples
       $ polyfill-exports ./my-package
 `,
   {
     flags: {
-      clear: { type: 'boolean' }
+      file: { type: 'string', alias: 'f' },
+      delete: { type: 'boolean', alias: 'd' },
     }
   }
 );
 
 const pkgPath = resolvePath(cli.input[0] || '.')
+const scriptFile = joinPath(pkgPath, cli.flags.file || 'polyfill-exports')
 
-if (cli.flags.clear) {
-  const results = clear(pkgPath)
-
-  if (results.length > 0) {
-    console.log(`\nPolyfill files are deleted under ${pkgPath}:\n`)
-
-    for(const file of results) {
-      console.log(`\t${file}`)
-    }
-
-    console.log(`\nplease add the changes into VCS.\n`)
-  } else {
-    console.log(`\nNo polyfill files to delete under "${pkgPath}".\n`)
-  }
+if (cli.flags.delete) {
+  try {
+    unlinkSync(scriptFile)
+  } catch {}
 } else {
-  const results = polyfill(pkgPath)
-
-  if (results.length > 0) {
-    console.log(`\nPolyfill files are created under "${pkgPath}":\n`)
-
-    const maxEntryNameLen = results.reduce(
-      (maximum, [entryName]) => Math.max(maximum, entryName.length),
-      0
-    )
-
-    for(const [entryFile, targetPath] of results) {
-      const spacesForAlignment = ' '.repeat(maxEntryNameLen - entryFile.length)
-      console.log(
-        `\t${entryFile}${spacesForAlignment}  ->  ${targetPath}`
-      )
-    }
-
-    console.log(`\nplease add the changes into VCS.\n`)
-  } else {
-    console.log(`\nNo subpath exports under "${pkgPath}".\n`)
+  const content = build(pkgPath)
+  if (content) {
+    writeFileSync(scriptFile, content, { mode: 0o555 })
   }
 }

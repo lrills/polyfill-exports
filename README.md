@@ -1,6 +1,6 @@
 # polyfill-exports
 
-Create polyfill files to require subpath in ES package "exports" for nodejs 12 below.
+Create a script to polyfill requiring ES package \"exports\" for nodejs 12 below.
 
 ## Install
 
@@ -12,7 +12,7 @@ $ yarn add --dev polyfill-exports
 
 ## Usage
 
-### create polyfill files
+Build the polyfill script:
 
 ```shell
 $ npx polyfill-exports
@@ -20,10 +20,26 @@ $ npx polyfill-exports
 $ yarn run polyfill-exports
 ```
 
-### clear polyfill files
+then add the script into "postinstall" hook (and also VCS).
+
+```js
+// your package.json
+{
+  ...
+  "exports": {
+    "foo": "./lib/foo.js"
+  },
+  "script": {
+    "postinstall": "./polyfill-exports"
+  },
+  ...
+}
+```
+
+### Delete polyfill files
 
 ```shell
-$ npx polyfill-exports --clear
+$ npx polyfill-exports --delete
 # or
-$ yarn run polyfill-exports --clear
+$ yarn run polyfill-exports --delete
 ```

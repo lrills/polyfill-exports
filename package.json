@@ -2,7 +2,7 @@
   "name": "polyfill-exports",
   "version": "0.2.0-beta.1",
   "type": "module",
-  "description": "Create polyfill files to require subpath in ES package \"exports\" for nodejs 12 below.",
+  "description": "Create a script to polyfill requiring ES package \"exports\" for nodejs 12 below.",
   "main": "index.js",
   "bin": "./cli.js",
   "scripts": {

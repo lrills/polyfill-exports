@@ -52,6 +52,10 @@ export default function polifillExportsSubpath(pkgPath = '.') {
 `#!/usr/bin/env node
 'use strict';
 
+if (process.cwd().indexOf('node_modules') === -1) {
+  process.exit(0);
+}
+
 var fs = require('fs');
 ${
   prerequisiteDirs.size > 0

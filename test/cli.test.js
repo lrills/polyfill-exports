@@ -6,6 +6,17 @@ import { execSync } from 'child_process'
 
 const __cli = resolvePath(dirname(fileURLToPath(import.meta.url)), '../cli.js')
 
+
+const expectedScriptHead = `#!/usr/bin/env node
+'use strict';
+
+if (process.cwd().indexOf('node_modules') === -1) {
+  process.exit(0);
+}
+
+var fs = require('fs');
+`
+
 export default {
   ['create "polyfill-exports" script'](pkgDir) {
     fs.writeFileSync(`${pkgDir}/package.json`, `{
@@ -18,12 +29,8 @@ export default {
     execSync(`node ${__cli}`, { cwd: pkgDir })
 
     assert.equal(
-      fs.readFileSync(`${pkgDir}/polyfill-exports`),
-`#!/usr/bin/env node
-'use strict';
-
-var fs = require('fs');
-
+      fs.readFileSync(`${pkgDir}/polyfill-exports`, { encoding:'utf8' }),
+`${expectedScriptHead}
 fs.symlinkSync('./lib/foo.js', './foo.js');
 `
     )
@@ -56,12 +63,8 @@ fs.symlinkSync('./lib/foo.js', './foo.js');
     execSync(`node ${__cli} --file scripts/polyfill.js`, { cwd: pkgDir })
 
     assert.equal(
-      fs.readFileSync(`${pkgDir}/scripts/polyfill.js`),
-`#!/usr/bin/env node
-'use strict';
-
-var fs = require('fs');
-
+      fs.readFileSync(`${pkgDir}/scripts/polyfill.js`, { encoding:'utf8' }),
+`${expectedScriptHead}
 fs.symlinkSync('./lib/foo.js', './foo.js');
 `
     )
@@ -78,12 +81,8 @@ fs.symlinkSync('./lib/foo.js', './foo.js');
     execSync(`node ${__cli} ${pkgDir}`)
 
     assert.equal(
-      fs.readFileSync(`${pkgDir}/polyfill-exports`),
-`#!/usr/bin/env node
-'use strict';
-
-var fs = require('fs');
-
+      fs.readFileSync(`${pkgDir}/polyfill-exports`, { encoding:'utf8' }),
+`${expectedScriptHead}
 fs.symlinkSync('./lib/foo.js', './foo.js');
 `
     )
@@ -121,11 +120,7 @@ fs.symlinkSync('./lib/foo.js', './foo.js');
     }`)
     fs.writeFileSync(
       `${pkgDir}/my-poly-script`,
-`#!/usr/bin/env node
-'use strict';
-
-var fs = require('fs');
-
+`${expectedScriptHead}
 fs.symlinkSync('./lib/foo.js', './foo.js');
 `
     )

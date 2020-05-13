@@ -20,18 +20,22 @@ $ npx polyfill-exports
 $ yarn run polyfill-exports
 ```
 
-then add the script into "postinstall" hook (and also VCS).
+then add the script into package.json "files" and "postinstall" hook.
 
 ```js
 // your package.json
 {
-  ...
+  ...,
   "exports": {
     "foo": "./lib/foo.js"
   },
   "script": {
     "postinstall": "./polyfill-exports"
   },
+  "files": [
+    ...,
+    "polyfill-exports"
+  ]
   ...
 }
 ```

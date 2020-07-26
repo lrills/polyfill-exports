@@ -1,6 +1,6 @@
 import fs from 'fs'
 import assert from 'assert'
-import buildPolyfillScript from '../build.js'
+import { polyfillPackage } from '../build.js'
 
 const expectedScriptHead = `#!/usr/bin/env node
 'use strict';
@@ -23,7 +23,7 @@ export default {
     }`)
 
     assert.equal(
-      buildPolyfillScript(pkgDir),
+      polyfillPackage(pkgDir),
 `${expectedScriptHead}
 fs.symlinkSync('./lib/foo.js', './foo.js');
 fs.symlinkSync('./lib/bar', './bar');
@@ -42,7 +42,7 @@ fs.symlinkSync('./lib/bar', './bar');
 
 
     assert.equal(
-      buildPolyfillScript(pkgDir),
+      polyfillPackage(pkgDir),
 `${expectedScriptHead}
 fs.symlinkSync('./lib/foo.js', './foo.js');
 `
@@ -70,7 +70,7 @@ fs.symlinkSync('./lib/foo.js', './foo.js');
     }`)
 
     assert.equal(
-      buildPolyfillScript(pkgDir),
+      polyfillPackage(pkgDir),
 `${expectedScriptHead}
 fs.symlinkSync('./lib/foo.cjs', './foo.js');
 fs.symlinkSync('./lib/bar.js', './bar.js');
@@ -90,7 +90,7 @@ fs.symlinkSync('./lib/baz.js', './baz.js');
     }`)
 
     assert.equal(
-      buildPolyfillScript(pkgDir),
+      polyfillPackage(pkgDir),
 `${expectedScriptHead}
 fs.mkdirSync('./deep');
 fs.mkdirSync('./really');
@@ -115,7 +115,7 @@ fs.symlinkSync('../../lib/really/deep/baz', './really/deep/baz');
     }`)
 
     assert.equal(
-      buildPolyfillScript(pkgDir),
+      polyfillPackage(pkgDir),
 `${expectedScriptHead}
 fs.mkdirSync('./a');
 fs.mkdirSync('./a/b');

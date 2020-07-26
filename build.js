@@ -1,7 +1,7 @@
 import { join as joinPath, relative as getRelativePath, dirname } from 'path'
 import { readFileSync } from 'fs'
 
-export default function polifillExportsSubpath(pkgPath = '.') {
+export function polyfillPackage(pkgPath = '.') {
   const packageConfig = readFileSync(
     `${pkgPath}/package.json`,
     { encoding: 'utf8' }
@@ -12,6 +12,10 @@ export default function polifillExportsSubpath(pkgPath = '.') {
     return undefined
   }
 
+  return polyfillExports(exports)
+}
+
+export function polyfillExports(exports) {
   const prerequisiteDirs = new Set()
   const linkPairs = []
 

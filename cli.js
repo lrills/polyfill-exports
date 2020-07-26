@@ -2,7 +2,7 @@
 import { resolve as resolvePath, join as joinPath } from 'path'
 import { unlinkSync, writeFileSync } from 'fs'
 import { createRequire } from "module"
-import build from './build.js'
+import { polyfillPackage } from './build.js'
 
 const meow = createRequire(import.meta.url)("meow");
 const cli = meow(`
@@ -32,7 +32,7 @@ if (cli.flags.delete) {
     unlinkSync(scriptFile)
   } catch {}
 } else {
-  const content = build(pkgPath)
+  const content = polyfillPackage(pkgPath)
   if (content) {
     writeFileSync(scriptFile, content, { mode: 0o665 })
   }

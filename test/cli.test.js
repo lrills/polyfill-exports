@@ -29,13 +29,13 @@ export default {
     execSync(`node ${__cli}`, { cwd: pkgDir })
 
     assert.equal(
-      fs.readFileSync(`${pkgDir}/polyfill-exports`, { encoding:'utf8' }),
+      fs.readFileSync(`${pkgDir}/polyfill-exports.js`, { encoding:'utf8' }),
 `${expectedScriptHead}
 fs.symlinkSync('./lib/foo.js', './foo.js');
 `
     )
 
-    assert.equal(fs.statSync(`${pkgDir}/polyfill-exports`).mode & 0o7777, 0o665)
+    assert.equal(fs.statSync(`${pkgDir}/polyfill-exports.js`).mode & 0o7777, 0o665)
   },
 
   ['create nothing if no subpath exports'](pkgDir) {
@@ -48,7 +48,7 @@ fs.symlinkSync('./lib/foo.js', './foo.js');
 
     execSync(`node ${__cli}`, { cwd: pkgDir })
 
-    assert.throws(() => fs.statSync(`${pkgDir}/polyfill-exports`), /ENOENT/)
+    assert.throws(() => fs.statSync(`${pkgDir}/polyfill-exports.js`), /ENOENT/)
   },
 
   ['create script at the path specified with "--file"'](pkgDir) {
@@ -81,7 +81,7 @@ fs.symlinkSync('./lib/foo.js', './foo.js');
     execSync(`node ${__cli} ${pkgDir}`)
 
     assert.equal(
-      fs.readFileSync(`${pkgDir}/polyfill-exports`, { encoding:'utf8' }),
+      fs.readFileSync(`${pkgDir}/polyfill-exports.js`, { encoding:'utf8' }),
 `${expectedScriptHead}
 fs.symlinkSync('./lib/foo.js', './foo.js');
 `
@@ -96,7 +96,7 @@ fs.symlinkSync('./lib/foo.js', './foo.js');
       }
     }`)
     fs.writeFileSync(
-      `${pkgDir}/polyfill-exports`,
+      `${pkgDir}/polyfill-exports.js`,
 `#!/usr/bin/env node
 'use strict';
 
@@ -108,7 +108,7 @@ fs.symlinkSync('./lib/foo.js', './foo.js');
 
     execSync(`node ${__cli} --delete`, { cwd: pkgDir })
 
-    assert.throws(() => fs.statSync(`${pkgDir}/polyfill-exports`), /ENOENT/)
+    assert.throws(() => fs.statSync(`${pkgDir}/polyfill-exports.js`), /ENOENT/)
   },
 
   ['delete with "--file" specified'](pkgDir) {

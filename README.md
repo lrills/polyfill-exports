@@ -30,11 +30,11 @@ then add the script into package.json "files" and "postinstall" hook.
     "foo": "./lib/foo.js"
   },
   "script": {
-    "postinstall": "./polyfill-exports"
+    "postinstall": "node ./polyfill-exports.js"
   },
   "files": [
     ...,
-    "polyfill-exports"
+    "polyfill-exports.js"
   ]
   ...
 }

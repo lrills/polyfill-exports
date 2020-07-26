@@ -25,15 +25,15 @@ const cli = meow(`
 );
 
 const pkgPath = resolvePath(cli.input[0] || '.')
-const scriptFile = joinPath(pkgPath, cli.flags.file || 'polyfill-exports')
+const scriptPath = joinPath(pkgPath, cli.flags.file || 'polyfill-exports.js')
 
 if (cli.flags.delete) {
   try {
-    unlinkSync(scriptFile)
+    unlinkSync(scriptPath)
   } catch {}
 } else {
   const content = polyfillPackage(pkgPath)
   if (content) {
-    writeFileSync(scriptFile, content, { mode: 0o665 })
+    writeFileSync(scriptPath, content, { mode: 0o665 })
   }
 }

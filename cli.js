@@ -34,6 +34,6 @@ if (cli.flags.delete) {
 } else {
   const content = build(pkgPath)
   if (content) {
-    writeFileSync(scriptFile, content, { mode: 0o555 })
+    writeFileSync(scriptFile, content, { mode: 0o665 })
   }
 }

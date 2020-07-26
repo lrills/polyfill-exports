@@ -35,7 +35,7 @@ fs.symlinkSync('./lib/foo.js', './foo.js');
 `
     )
 
-    assert.equal(fs.statSync(`${pkgDir}/polyfill-exports`).mode & 0o7777, 0o555)
+    assert.equal(fs.statSync(`${pkgDir}/polyfill-exports`).mode & 0o7777, 0o665)
   },
 
   ['create nothing if no subpath exports'](pkgDir) {

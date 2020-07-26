@@ -34,6 +34,6 @@ if (cli.flags.delete) {
 } else {
   const content = polyfillPackage(pkgPath)
   if (content) {
-    writeFileSync(scriptPath, content, { mode: 0o665 })
+    writeFileSync(scriptPath, content, { mode: 0o775 })
   }
 }

@@ -10,8 +10,10 @@ const cli = meow(`
       $ polyfill-exports [path]
 
     Options
-    --file, -f    File name of the script builded, default "polyfill-exports".
-    --delete, -d  Delete the polyfill script file
+    --file, -f        File name of the script builded, default "polyfill-exports".
+    --delete, -d      Delete the polyfill script file instead of building.
+    --ts-declaration  Also create links of typescript .d.ts file, default to false.
+    --module-only, -m Create links only while being installed from npm, default to true.
 
     Examples
       $ polyfill-exports ./my-package
@@ -20,8 +22,8 @@ const cli = meow(`
     flags: {
       file: { type: 'string', alias: 'f' },
       delete: { type: 'boolean', alias: 'd' },
-      tsDeclaration: { type: 'boolean' },
-      onlyModule: { type: 'boolean', alias: 'm' },
+      tsDeclaration: { type: 'boolean', default: false },
+      moduleOnly: { type: 'boolean', default: true, alias: 'm' },
     }
   }
 );
@@ -37,7 +39,7 @@ if (flags.delete) {
 } else {
   const content = polyfillPackage(pkgPath, {
     tsDeclaration: flags.tsDeclaration,
-    onlyModule: flags.onlyModule,
+    moduleOnly: flags.moduleOnly,
   });
   if (content) {
     writeFileSync(scriptPath, content, { mode: 0o775 })

@@ -11,6 +11,10 @@ const expectedScriptHead = `#!/usr/bin/env node
 'use strict';
 
 var fs = require('fs');
+
+if (process.cwd().indexOf('node_modules') === -1) {
+  process.exit(0);
+}
 `
 
 export default {
@@ -106,7 +110,7 @@ fs.symlinkSync('./lib/foo.d.ts', './foo.d.ts');
     )
   },
 
-  ['effect only when installed as an module if --only-module flag is true'](pkgDir) {
+  ['do not check is module when --module-only flag is false'](pkgDir) {
     fs.writeFileSync(`${pkgDir}/package.json`, `{
       "name": "polyfill-exports-testing",
       "exports": {
@@ -114,14 +118,14 @@ fs.symlinkSync('./lib/foo.d.ts', './foo.d.ts');
       }
     }`)
 
-    execSync(`node ${__cli} ${pkgDir} --only-module`)
+    execSync(`node ${__cli} ${pkgDir} --module-only=false`)
 
     assert.equal(
       fs.readFileSync(`${pkgDir}/polyfill-exports.js`, { encoding:'utf8' }),
-`${expectedScriptHead}
-if (process.cwd().indexOf('node_modules') === -1) {
-  process.exit(0);
-}
+`#!/usr/bin/env node
+'use strict';
+
+var fs = require('fs');
 
 fs.symlinkSync('./lib/foo.js', './foo.js');
 `

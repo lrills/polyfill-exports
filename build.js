@@ -20,7 +20,7 @@ export function polyfillPackage(pkgPath = '.', options={}) {
   return polyfillExports(exports, options)
 }
 
-export function polyfillExports(exports, { tsDeclaration=false, onlyModule=false }) {
+export function polyfillExports(exports, { tsDeclaration=false, moduleOnly=true }) {
   const prerequisiteDirs = new Set()
   const linkPairs = []
 
@@ -62,7 +62,7 @@ export function polyfillExports(exports, { tsDeclaration=false, onlyModule=false
 'use strict';
 
 var fs = require('fs');
-${onlyModule ? `
+${moduleOnly ? `
 if (process.cwd().indexOf('node_modules') === -1) {
   process.exit(0);
 }

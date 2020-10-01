@@ -6,6 +6,10 @@ const expectedScriptHead = `#!/usr/bin/env node
 'use strict';
 
 var fs = require('fs');
+
+if (process.cwd().indexOf('node_modules') === -1) {
+  process.exit(0);
+}
 `
 
 export default {
@@ -124,7 +128,7 @@ fs.symlinkSync('../../lib/a/b/d', './a/b/d');
     )
   },
 
-  ['with tsDeclaration option'](pkgDir) {
+  ['with tsDeclaration option set to true'](pkgDir) {
     fs.writeFileSync(`${pkgDir}/package.json`, `{
       "name": "polyfill-exports-testing",
       "exports": {
@@ -153,7 +157,7 @@ fs.symlinkSync('./lib/d.d.ts', './d.d.ts');
     )
   },
 
-  ['with onlyModule option'](pkgDir) {
+  ['with moduleOnly option set to false'](pkgDir) {
     fs.writeFileSync(`${pkgDir}/package.json`, `{
       "name": "polyfill-exports-testing",
       "exports": {
@@ -163,11 +167,11 @@ fs.symlinkSync('./lib/d.d.ts', './d.d.ts');
     }`)
 
     assert.equal(
-      polyfillPackage(pkgDir, { onlyModule: true }),
-`${expectedScriptHead}
-if (process.cwd().indexOf('node_modules') === -1) {
-  process.exit(0);
-}
+      polyfillPackage(pkgDir, { moduleOnly: false }),
+`#!/usr/bin/env node
+'use strict';
+
+var fs = require('fs');
 
 fs.symlinkSync('./lib/foo.js', './foo.js');
 fs.symlinkSync('./lib/bar', './bar');

@@ -10,10 +10,6 @@ const __cli = resolvePath(dirname(fileURLToPath(import.meta.url)), '../cli.js')
 const expectedScriptHead = `#!/usr/bin/env node
 'use strict';
 
-if (process.cwd().indexOf('node_modules') === -1) {
-  process.exit(0);
-}
-
 var fs = require('fs');
 `
 
@@ -106,6 +102,28 @@ fs.symlinkSync('./lib/foo.js', './foo.js');
 `${expectedScriptHead}
 fs.symlinkSync('./lib/foo.js', './foo.js');
 fs.symlinkSync('./lib/foo.d.ts', './foo.d.ts');
+`
+    )
+  },
+
+  ['effect only when installed as an module if --only-module flag is true'](pkgDir) {
+    fs.writeFileSync(`${pkgDir}/package.json`, `{
+      "name": "polyfill-exports-testing",
+      "exports": {
+        "./foo": "./lib/foo.js"
+      }
+    }`)
+
+    execSync(`node ${__cli} ${pkgDir} --only-module`)
+
+    assert.equal(
+      fs.readFileSync(`${pkgDir}/polyfill-exports.js`, { encoding:'utf8' }),
+`${expectedScriptHead}
+if (process.cwd().indexOf('node_modules') === -1) {
+  process.exit(0);
+}
+
+fs.symlinkSync('./lib/foo.js', './foo.js');
 `
     )
   },

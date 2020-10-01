@@ -21,20 +21,23 @@ const cli = meow(`
       file: { type: 'string', alias: 'f' },
       delete: { type: 'boolean', alias: 'd' },
       tsDeclaration: { type: 'boolean' },
+      onlyModule: { type: 'boolean', alias: 'm' },
     }
   }
 );
 
-const pkgPath = resolvePath(cli.input[0] || '.')
-const scriptPath = joinPath(pkgPath, cli.flags.file || 'polyfill-exports.js')
+const { flags, input } = cli
+const pkgPath = resolvePath(input[0] || '.')
+const scriptPath = joinPath(pkgPath, flags.file || 'polyfill-exports.js')
 
-if (cli.flags.delete) {
+if (flags.delete) {
   try {
     unlinkSync(scriptPath)
   } catch {}
 } else {
   const content = polyfillPackage(pkgPath, {
-    tsDeclaration: cli.flags.tsDeclaration,
+    tsDeclaration: flags.tsDeclaration,
+    onlyModule: flags.onlyModule,
   });
   if (content) {
     writeFileSync(scriptPath, content, { mode: 0o775 })

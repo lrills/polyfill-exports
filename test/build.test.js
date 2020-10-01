@@ -5,10 +5,6 @@ import { polyfillPackage } from '../build.js'
 const expectedScriptHead = `#!/usr/bin/env node
 'use strict';
 
-if (process.cwd().indexOf('node_modules') === -1) {
-  process.exit(0);
-}
-
 var fs = require('fs');
 `
 
@@ -128,7 +124,7 @@ fs.symlinkSync('../../lib/a/b/d', './a/b/d');
     )
   },
 
-  ['with typescript declaration links'](pkgDir) {
+  ['with tsDeclaration option'](pkgDir) {
     fs.writeFileSync(`${pkgDir}/package.json`, `{
       "name": "polyfill-exports-testing",
       "exports": {
@@ -153,6 +149,28 @@ fs.symlinkSync('../../lib/a/b/c.js', './a/b/c.js');
 fs.symlinkSync('../../lib/a/b/c.d.ts', './a/b/c.d.ts');
 fs.symlinkSync('./lib/d.js', './d.js');
 fs.symlinkSync('./lib/d.d.ts', './d.d.ts');
+`
+    )
+  },
+
+  ['with onlyModule option'](pkgDir) {
+    fs.writeFileSync(`${pkgDir}/package.json`, `{
+      "name": "polyfill-exports-testing",
+      "exports": {
+        "./foo": "./lib/foo.js",
+        "./bar/": "./lib/bar/"
+      }
+    }`)
+
+    assert.equal(
+      polyfillPackage(pkgDir, { onlyModule: true }),
+`${expectedScriptHead}
+if (process.cwd().indexOf('node_modules') === -1) {
+  process.exit(0);
+}
+
+fs.symlinkSync('./lib/foo.js', './foo.js');
+fs.symlinkSync('./lib/bar', './bar');
 `
     )
   },

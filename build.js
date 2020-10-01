@@ -20,7 +20,7 @@ export function polyfillPackage(pkgPath = '.', options={}) {
   return polyfillExports(exports, options)
 }
 
-export function polyfillExports(exports, { tsDeclaration=false }) {
+export function polyfillExports(exports, { tsDeclaration=false, onlyModule=false }) {
   const prerequisiteDirs = new Set()
   const linkPairs = []
 
@@ -61,12 +61,13 @@ export function polyfillExports(exports, { tsDeclaration=false }) {
 `#!/usr/bin/env node
 'use strict';
 
+var fs = require('fs');
+${onlyModule ? `
 if (process.cwd().indexOf('node_modules') === -1) {
   process.exit(0);
 }
-
-var fs = require('fs');
-${
+` : ''
+}${
   prerequisiteDirs.size > 0
     ? `\n${
         [...prerequisiteDirs].sort().map(dir =>

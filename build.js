@@ -1,7 +1,12 @@
-import { join as joinPath, relative as getRelativePath, dirname } from 'path'
+import {
+  join as joinPath,
+  relative as getRelativePath,
+  dirname,
+  basename,
+} from 'path'
 import { readFileSync } from 'fs'
 
-export function polyfillPackage(pkgPath = '.') {
+export function polyfillPackage(pkgPath = '.', options={}) {
   const packageConfig = readFileSync(
     `${pkgPath}/package.json`,
     { encoding: 'utf8' }
@@ -12,10 +17,10 @@ export function polyfillPackage(pkgPath = '.') {
     return undefined
   }
 
-  return polyfillExports(exports)
+  return polyfillExports(exports, options)
 }
 
-export function polyfillExports(exports) {
+export function polyfillExports(exports, { tsDeclaration=false }) {
   const prerequisiteDirs = new Set()
   const linkPairs = []
 
@@ -72,19 +77,22 @@ ${
 }
 ${
   linkPairs
-    .map(([subpath, target]) => {
+    .reduce((commands, [subpath, target]) => {
       if (subpath[subpath.length - 1] === '/') {
-        return `fs.symlinkSync('${target}', '${subpath.slice(0, -1)}');`
+        // subpath is a folder
+        commands.push(`fs.symlinkSync('${target}', '${subpath.slice(0, -1)}');`)
+      } else {
+        commands.push(`fs.symlinkSync('${target}', '${subpath}.js');`)
+        if (tsDeclaration) {
+          const targetName = basename(target, '.js')
+          const tsDeclarationTarget = `${dirname(target)}/${targetName}.d.ts`
+          commands.push(
+            `fs.symlinkSync('${tsDeclarationTarget}', '${subpath}.d.ts');`
+          )
+        }
       }
-
-      if (prerequisiteDirs.has(subpath)) {
-        return `fs.symlinkSync('${
-                joinPath('..', target)
-              }', '${subpath}/index.js');`
-      }
-
-      return `fs.symlinkSync('${target}', '${subpath}.js');`
-    }).join('\n')
+      return commands
+    }, []).join('\n')
 }
 `
   return script

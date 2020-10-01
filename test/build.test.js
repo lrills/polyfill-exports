@@ -103,7 +103,7 @@ fs.symlinkSync('../../lib/really/deep/baz', './really/deep/baz');
     )
   },
 
-  ['use ./subpath/index.js if there is other path exports under ./subpath'](pkgDir) {
+  ['nested subpathes'](pkgDir) {
     fs.writeFileSync(`${pkgDir}/package.json`, `{
       "name": "polyfill-exports-testing",
       "exports": {
@@ -120,10 +120,39 @@ fs.symlinkSync('../../lib/really/deep/baz', './really/deep/baz');
 fs.mkdirSync('./a');
 fs.mkdirSync('./a/b');
 
-fs.symlinkSync('../lib/a/index.js', './a/index.js');
-fs.symlinkSync('../../lib/a/b/index.js', './a/b/index.js');
+fs.symlinkSync('./lib/a/index.js', './a.js');
+fs.symlinkSync('../lib/a/b/index.js', './a/b.js');
 fs.symlinkSync('../../lib/a/b/c.js', './a/b/c.js');
 fs.symlinkSync('../../lib/a/b/d', './a/b/d');
+`
+    )
+  },
+
+  ['with typescript declaration links'](pkgDir) {
+    fs.writeFileSync(`${pkgDir}/package.json`, `{
+      "name": "polyfill-exports-testing",
+      "exports": {
+        "./a": "./lib/a/index.js",
+        "./a/b": "./lib/a/b/index.js",
+        "./a/b/c": "./lib/a/b/c.js",
+        "./d": "./lib/d.js"
+      }
+    }`)
+
+    assert.equal(
+      polyfillPackage(pkgDir, { tsDeclaration: true }),
+`${expectedScriptHead}
+fs.mkdirSync('./a');
+fs.mkdirSync('./a/b');
+
+fs.symlinkSync('./lib/a/index.js', './a.js');
+fs.symlinkSync('./lib/a/index.d.ts', './a.d.ts');
+fs.symlinkSync('../lib/a/b/index.js', './a/b.js');
+fs.symlinkSync('../lib/a/b/index.d.ts', './a/b.d.ts');
+fs.symlinkSync('../../lib/a/b/c.js', './a/b/c.js');
+fs.symlinkSync('../../lib/a/b/c.d.ts', './a/b/c.d.ts');
+fs.symlinkSync('./lib/d.js', './d.js');
+fs.symlinkSync('./lib/d.d.ts', './d.d.ts');
 `
     )
   },

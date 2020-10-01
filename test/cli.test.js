@@ -91,7 +91,26 @@ fs.symlinkSync('./lib/foo.js', './foo.js');
     )
   },
 
-  ['delete the script if "--delete" flag given'](pkgDir) {
+  ['create .d.ts file if --ts-declaration flag is true'](pkgDir) {
+    fs.writeFileSync(`${pkgDir}/package.json`, `{
+      "name": "polyfill-exports-testing",
+      "exports": {
+        "./foo": "./lib/foo.js"
+      }
+    }`)
+
+    execSync(`node ${__cli} ${pkgDir} --ts-declaration`)
+
+    assert.equal(
+      fs.readFileSync(`${pkgDir}/polyfill-exports.js`, { encoding:'utf8' }),
+`${expectedScriptHead}
+fs.symlinkSync('./lib/foo.js', './foo.js');
+fs.symlinkSync('./lib/foo.d.ts', './foo.d.ts');
+`
+    )
+  },
+
+  ['delete the script if "--delete" flag is true'](pkgDir) {
     fs.writeFileSync(`${pkgDir}/package.json`, `{
       "name": "polyfill-exports-testing",
       "exports": {

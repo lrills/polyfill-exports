@@ -20,6 +20,7 @@ const cli = meow(`
     flags: {
       file: { type: 'string', alias: 'f' },
       delete: { type: 'boolean', alias: 'd' },
+      tsDeclaration: { type: 'boolean' },
     }
   }
 );
@@ -32,7 +33,9 @@ if (cli.flags.delete) {
     unlinkSync(scriptPath)
   } catch {}
 } else {
-  const content = polyfillPackage(pkgPath)
+  const content = polyfillPackage(pkgPath, {
+    tsDeclaration: cli.flags.tsDeclaration,
+  });
   if (content) {
     writeFileSync(scriptPath, content, { mode: 0o775 })
   }

@@ -74,7 +74,7 @@ if (process.cwd().indexOf('node_modules') === -1) {
 ` : ''
 }
 function polyfillPath(posixPath) {
-  return path.join(posixPath.split(path.posix.sep));
+  return path.join.apply(null, posixPath.split(path.posix.sep));
 }
 ${
   prerequisiteDirs.size > 0

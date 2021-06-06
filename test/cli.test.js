@@ -11,9 +11,14 @@ const expectedScriptHead = `#!/usr/bin/env node
 'use strict';
 
 var fs = require('fs');
+var path = require('path');
 
 if (process.cwd().indexOf('node_modules') === -1) {
   process.exit(0);
+}
+
+function polyfillPath(posixPath) {
+  return path.join(posixPath.split(path.posix.sep));
 }
 `
 
@@ -31,7 +36,7 @@ export default {
     assert.equal(
       fs.readFileSync(`${pkgDir}/polyfill-exports.js`, { encoding:'utf8' }),
 `${expectedScriptHead}
-fs.symlinkSync('./lib/foo.js', './foo.js');
+fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
 `
     )
 
@@ -68,7 +73,7 @@ fs.symlinkSync('./lib/foo.js', './foo.js');
     assert.equal(
       fs.readFileSync(`${pkgDir}/scripts/polyfill.js`, { encoding:'utf8' }),
 `${expectedScriptHead}
-fs.symlinkSync('./lib/foo.js', './foo.js');
+fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
 `
     )
   },
@@ -86,7 +91,7 @@ fs.symlinkSync('./lib/foo.js', './foo.js');
     assert.equal(
       fs.readFileSync(`${pkgDir}/polyfill-exports.js`, { encoding:'utf8' }),
 `${expectedScriptHead}
-fs.symlinkSync('./lib/foo.js', './foo.js');
+fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
 `
     )
   },
@@ -104,8 +109,8 @@ fs.symlinkSync('./lib/foo.js', './foo.js');
     assert.equal(
       fs.readFileSync(`${pkgDir}/polyfill-exports.js`, { encoding:'utf8' }),
 `${expectedScriptHead}
-fs.symlinkSync('./lib/foo.js', './foo.js');
-fs.symlinkSync('./lib/foo.d.ts', './foo.d.ts');
+fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
+fs.symlinkSync(polyfillPath('./lib/foo.d.ts'), polyfillPath('./foo.d.ts'));
 `
     )
   },
@@ -126,8 +131,13 @@ fs.symlinkSync('./lib/foo.d.ts', './foo.d.ts');
 'use strict';
 
 var fs = require('fs');
+var path = require('path');
 
-fs.symlinkSync('./lib/foo.js', './foo.js');
+function polyfillPath(posixPath) {
+  return path.join(posixPath.split(path.posix.sep));
+}
+
+fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
 `
     )
   },
@@ -145,8 +155,13 @@ fs.symlinkSync('./lib/foo.js', './foo.js');
 'use strict';
 
 var fs = require('fs');
+var path = require('path');
 
-fs.symlinkSync('./lib/foo.js', './foo.js');
+function polyfillPath(posixPath) {
+  return path.join(posixPath.split(path.posix.sep));
+}
+
+fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
 `
     )
 
@@ -165,7 +180,7 @@ fs.symlinkSync('./lib/foo.js', './foo.js');
     fs.writeFileSync(
       `${pkgDir}/my-poly-script`,
 `${expectedScriptHead}
-fs.symlinkSync('./lib/foo.js', './foo.js');
+fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
 `
     )
 

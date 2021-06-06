@@ -6,9 +6,14 @@ const expectedScriptHead = `#!/usr/bin/env node
 'use strict';
 
 var fs = require('fs');
+var path = require('path');
 
 if (process.cwd().indexOf('node_modules') === -1) {
   process.exit(0);
+}
+
+function polyfillPath(posixPath) {
+  return path.join(posixPath.split(path.posix.sep));
 }
 `
 
@@ -25,8 +30,8 @@ export default {
     assert.equal(
       polyfillPackage(pkgDir),
 `${expectedScriptHead}
-fs.symlinkSync('./lib/foo.js', './foo.js');
-fs.symlinkSync('./lib/bar', './bar');
+fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
+fs.symlinkSync(polyfillPath('./lib/bar'), polyfillPath('./bar'));
 `
     )
   },
@@ -44,7 +49,7 @@ fs.symlinkSync('./lib/bar', './bar');
     assert.equal(
       polyfillPackage(pkgDir),
 `${expectedScriptHead}
-fs.symlinkSync('./lib/foo.js', './foo.js');
+fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
 `
     )
   },
@@ -72,9 +77,9 @@ fs.symlinkSync('./lib/foo.js', './foo.js');
     assert.equal(
       polyfillPackage(pkgDir),
 `${expectedScriptHead}
-fs.symlinkSync('./lib/foo.cjs', './foo.js');
-fs.symlinkSync('./lib/bar.js', './bar.js');
-fs.symlinkSync('./lib/baz.js', './baz.js');
+fs.symlinkSync(polyfillPath('./lib/foo.cjs'), polyfillPath('./foo.js'));
+fs.symlinkSync(polyfillPath('./lib/bar.js'), polyfillPath('./bar.js'));
+fs.symlinkSync(polyfillPath('./lib/baz.js'), polyfillPath('./baz.js'));
 `
     )
   },
@@ -92,13 +97,13 @@ fs.symlinkSync('./lib/baz.js', './baz.js');
     assert.equal(
       polyfillPackage(pkgDir),
 `${expectedScriptHead}
-fs.mkdirSync('./deep');
-fs.mkdirSync('./really');
-fs.mkdirSync('./really/deep');
+fs.mkdirSync(polyfillPath('./deep'));
+fs.mkdirSync(polyfillPath('./really'));
+fs.mkdirSync(polyfillPath('./really/deep'));
 
-fs.symlinkSync('../lib/deep/foo.js', './deep/foo.js');
-fs.symlinkSync('../../lib/really/deep/bar.js', './really/deep/bar.js');
-fs.symlinkSync('../../lib/really/deep/baz', './really/deep/baz');
+fs.symlinkSync(polyfillPath('../lib/deep/foo.js'), polyfillPath('./deep/foo.js'));
+fs.symlinkSync(polyfillPath('../../lib/really/deep/bar.js'), polyfillPath('./really/deep/bar.js'));
+fs.symlinkSync(polyfillPath('../../lib/really/deep/baz'), polyfillPath('./really/deep/baz'));
 `
     )
   },
@@ -117,13 +122,13 @@ fs.symlinkSync('../../lib/really/deep/baz', './really/deep/baz');
     assert.equal(
       polyfillPackage(pkgDir),
 `${expectedScriptHead}
-fs.mkdirSync('./a');
-fs.mkdirSync('./a/b');
+fs.mkdirSync(polyfillPath('./a'));
+fs.mkdirSync(polyfillPath('./a/b'));
 
-fs.symlinkSync('./lib/a/index.js', './a.js');
-fs.symlinkSync('../lib/a/b/index.js', './a/b.js');
-fs.symlinkSync('../../lib/a/b/c.js', './a/b/c.js');
-fs.symlinkSync('../../lib/a/b/d', './a/b/d');
+fs.symlinkSync(polyfillPath('./lib/a/index.js'), polyfillPath('./a.js'));
+fs.symlinkSync(polyfillPath('../lib/a/b/index.js'), polyfillPath('./a/b.js'));
+fs.symlinkSync(polyfillPath('../../lib/a/b/c.js'), polyfillPath('./a/b/c.js'));
+fs.symlinkSync(polyfillPath('../../lib/a/b/d'), polyfillPath('./a/b/d'));
 `
     )
   },
@@ -142,17 +147,17 @@ fs.symlinkSync('../../lib/a/b/d', './a/b/d');
     assert.equal(
       polyfillPackage(pkgDir, { tsDeclaration: true }),
 `${expectedScriptHead}
-fs.mkdirSync('./a');
-fs.mkdirSync('./a/b');
+fs.mkdirSync(polyfillPath('./a'));
+fs.mkdirSync(polyfillPath('./a/b'));
 
-fs.symlinkSync('./lib/a/index.js', './a.js');
-fs.symlinkSync('./lib/a/index.d.ts', './a.d.ts');
-fs.symlinkSync('../lib/a/b/index.js', './a/b.js');
-fs.symlinkSync('../lib/a/b/index.d.ts', './a/b.d.ts');
-fs.symlinkSync('../../lib/a/b/c.js', './a/b/c.js');
-fs.symlinkSync('../../lib/a/b/c.d.ts', './a/b/c.d.ts');
-fs.symlinkSync('./lib/d.js', './d.js');
-fs.symlinkSync('./lib/d.d.ts', './d.d.ts');
+fs.symlinkSync(polyfillPath('./lib/a/index.js'), polyfillPath('./a.js'));
+fs.symlinkSync(polyfillPath('./lib/a/index.d.ts'), polyfillPath('./a.d.ts'));
+fs.symlinkSync(polyfillPath('../lib/a/b/index.js'), polyfillPath('./a/b.js'));
+fs.symlinkSync(polyfillPath('../lib/a/b/index.d.ts'), polyfillPath('./a/b.d.ts'));
+fs.symlinkSync(polyfillPath('../../lib/a/b/c.js'), polyfillPath('./a/b/c.js'));
+fs.symlinkSync(polyfillPath('../../lib/a/b/c.d.ts'), polyfillPath('./a/b/c.d.ts'));
+fs.symlinkSync(polyfillPath('./lib/d.js'), polyfillPath('./d.js'));
+fs.symlinkSync(polyfillPath('./lib/d.d.ts'), polyfillPath('./d.d.ts'));
 `
     )
   },
@@ -172,9 +177,14 @@ fs.symlinkSync('./lib/d.d.ts', './d.d.ts');
 'use strict';
 
 var fs = require('fs');
+var path = require('path');
 
-fs.symlinkSync('./lib/foo.js', './foo.js');
-fs.symlinkSync('./lib/bar', './bar');
+function polyfillPath(posixPath) {
+  return path.join(posixPath.split(path.posix.sep));
+}
+
+fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
+fs.symlinkSync(polyfillPath('./lib/bar'), polyfillPath('./bar'));
 `
     )
   },

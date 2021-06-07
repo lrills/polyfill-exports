@@ -3,6 +3,7 @@ import assert from 'assert'
 import { fileURLToPath } from 'url'
 import { resolve as resolvePath, dirname } from 'path'
 import { execSync } from 'child_process'
+import assertEqualDiff from './assertEqualDiff.js'
 
 const __cli = resolvePath(dirname(fileURLToPath(import.meta.url)), '../cli.js')
 
@@ -33,16 +34,16 @@ export default {
 
     execSync(`node ${__cli}`, { cwd: pkgDir })
 
-    assert.equal(
-      fs.readFileSync(`${pkgDir}/polyfill-exports.js`, { encoding:'utf8' }),
+    assertEqualDiff(
 `${expectedScriptHead}
-fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
-`
+fs.writeFileSync(polyfillPath('./foo.js'), 'module.exports=require("./lib/foo.js");\\n');
+`,
+      fs.readFileSync(`${pkgDir}/polyfill-exports.js`, { encoding:'utf8' })
     )
 
     assert.equal(
-      fs.statSync(`${pkgDir}/polyfill-exports.js`).mode & 0o7777,
-      0o775
+      0o775,
+      fs.statSync(`${pkgDir}/polyfill-exports.js`).mode & 0o7777
     )
   },
 
@@ -70,11 +71,11 @@ fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
 
     execSync(`node ${__cli} --file scripts/polyfill.js`, { cwd: pkgDir })
 
-    assert.equal(
-      fs.readFileSync(`${pkgDir}/scripts/polyfill.js`, { encoding:'utf8' }),
+    assertEqualDiff(
 `${expectedScriptHead}
-fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
-`
+fs.writeFileSync(polyfillPath('./foo.js'), 'module.exports=require("./lib/foo.js");\\n');
+`,
+      fs.readFileSync(`${pkgDir}/scripts/polyfill.js`, { encoding:'utf8' })
     )
   },
 
@@ -88,12 +89,9 @@ fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
 
     execSync(`node ${__cli} ${pkgDir}`)
 
-    assert.equal(
-      fs.readFileSync(`${pkgDir}/polyfill-exports.js`, { encoding:'utf8' }),
-`${expectedScriptHead}
-fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
-`
-    )
+    assertEqualDiff(`${expectedScriptHead}
+fs.writeFileSync(polyfillPath('./foo.js'), 'module.exports=require("./lib/foo.js");\\n');
+`, fs.readFileSync(`${pkgDir}/polyfill-exports.js`, { encoding:'utf8' }))
   },
 
   ['create .d.ts file if --ts-declaration flag is true'](pkgDir) {
@@ -106,12 +104,12 @@ fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
 
     execSync(`node ${__cli} ${pkgDir} --ts-declaration`)
 
-    assert.equal(
-      fs.readFileSync(`${pkgDir}/polyfill-exports.js`, { encoding:'utf8' }),
+    assertEqualDiff(
 `${expectedScriptHead}
-fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
-fs.symlinkSync(polyfillPath('./lib/foo.d.ts'), polyfillPath('./foo.d.ts'));
-`
+fs.writeFileSync(polyfillPath('./foo.js'), 'module.exports=require("./lib/foo.js");\\n');
+fs.writeFileSync(polyfillPath('./foo.d.ts'), 'export * from "./lib/foo";\\n');
+`,
+      fs.readFileSync(`${pkgDir}/polyfill-exports.js`, { encoding:'utf8' })
     )
   },
 
@@ -125,8 +123,7 @@ fs.symlinkSync(polyfillPath('./lib/foo.d.ts'), polyfillPath('./foo.d.ts'));
 
     execSync(`node ${__cli} ${pkgDir} --module-only=false`)
 
-    assert.equal(
-      fs.readFileSync(`${pkgDir}/polyfill-exports.js`, { encoding:'utf8' }),
+    assertEqualDiff(
 `#!/usr/bin/env node
 'use strict';
 
@@ -137,8 +134,9 @@ function polyfillPath(posixPath) {
   return path.join.apply(null, posixPath.split(path.posix.sep));
 }
 
-fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
-`
+fs.writeFileSync(polyfillPath('./foo.js'), 'module.exports=require("./lib/foo.js");\\n');
+`, 
+      fs.readFileSync(`${pkgDir}/polyfill-exports.js`, { encoding:'utf8' })
     )
   },
 
@@ -161,7 +159,7 @@ function polyfillPath(posixPath) {
   return path.join.apply(null, posixPath.split(path.posix.sep));
 }
 
-fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
+fs.writeFileSync(polyfillPath('./foo.js'), 'module.exports=require("./lib/foo.js");\\n');
 `
     )
 
@@ -180,7 +178,7 @@ fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
     fs.writeFileSync(
       `${pkgDir}/my-poly-script`,
 `${expectedScriptHead}
-fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
+fs.writeFileSync(polyfillPath('./foo.js'), 'module.exports=require("./lib/foo.js");\\n');
 `
     )
 

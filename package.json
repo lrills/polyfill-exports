@@ -13,6 +13,7 @@
   "homepage": "https://github.com/lrills/polyfill-exports#readme",
   "license": "MIT",
   "devDependencies": {
+    "jest-diff": "^27.0.2",
     "tmp": "^0.2.1"
   },
   "engines": {

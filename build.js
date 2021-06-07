@@ -20,10 +20,6 @@ export function polyfillPackage(pkgPath = '.', options={}) {
   return polyfillExports(exports, options)
 }
 
-function symlinkCode(from, to) {
-  return `fs.symlinkSync(polyfillPath('${from}'), polyfillPath('${to}'));`
-}
-
 export function polyfillExports(exports, { tsDeclaration=false, moduleOnly=true }) {
   const prerequisiteDirs = new Set()
   const linkPairs = []
@@ -92,18 +88,20 @@ ${
     .reduce((commands, [subpath, target]) => {
       if (subpath.slice(-2) === '/*' && subpathPatternMatcher.test(target)) {
         // subpath is a folder
+        const targetDir = target.replace(subpathPatternMatcher, '')
+        const linkDir = subpath.slice(0, -2)
         commands.push(
-          symlinkCode(
-            target.replace(subpathPatternMatcher, ''),
-            subpath.slice(0, -2)
-          )
+          `fs.symlinkSync(polyfillPath('${targetDir}'), polyfillPath('${linkDir}'), process.platform === 'win32' ? 'junction' : 'dir');`
         )
       } else {
-        commands.push(symlinkCode(target, `${subpath}.js`))
+        commands.push(
+          `fs.writeFileSync(polyfillPath('${subpath}.js'), 'module.exports=require("${target}");\\n');`
+        )
         if (tsDeclaration) {
-          const targetName = basename(target, '.js')
-          const tsDeclarationTarget = `${dirname(target)}/${targetName}.d.ts`
-          commands.push(symlinkCode(tsDeclarationTarget, `${subpath}.d.ts`))
+          const targetModuleName = target.replace(/\.[^\/\.]+$/, '')
+          commands.push(
+            `fs.writeFileSync(polyfillPath('${subpath}.d.ts'), 'export * from "${targetModuleName}";\\n');`
+          )
         }
       }
       return commands

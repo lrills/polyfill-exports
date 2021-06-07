@@ -100,7 +100,7 @@ ${
         if (tsDeclaration) {
           const targetModuleName = target.replace(/\.[^\/\.]+$/, '')
           commands.push(
-            `fs.writeFileSync(polyfillPath('${subpath}.d.ts'), 'export * from "${targetModuleName}";\\n');`
+            `fs.writeFileSync(polyfillPath('${subpath}.d.ts'), 'export { default } from "${targetModuleName}";\\nexport * from "${targetModuleName}";\\n');`
           )
         }
       }

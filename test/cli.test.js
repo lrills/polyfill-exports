@@ -107,7 +107,7 @@ fs.writeFileSync(polyfillPath('./foo.js'), 'module.exports=require("./lib/foo.js
     assertEqualDiff(
 `${expectedScriptHead}
 fs.writeFileSync(polyfillPath('./foo.js'), 'module.exports=require("./lib/foo.js");\\n');
-fs.writeFileSync(polyfillPath('./foo.d.ts'), 'export * from "./lib/foo";\\n');
+fs.writeFileSync(polyfillPath('./foo.d.ts'), 'export { default } from "./lib/foo";\\nexport * from "./lib/foo";\\n');
 `,
       fs.readFileSync(`${pkgDir}/polyfill-exports.js`, { encoding:'utf8' })
     )

@@ -150,13 +150,13 @@ fs.mkdirSync(polyfillPath('./a'));
 fs.mkdirSync(polyfillPath('./a/b'));
 
 fs.writeFileSync(polyfillPath('./a.js'), 'module.exports=require("./lib/a/index.js");\\n');
-fs.writeFileSync(polyfillPath('./a.d.ts'), 'export * from "./lib/a/index";\\n');
+fs.writeFileSync(polyfillPath('./a.d.ts'), 'export { default } from "./lib/a/index";\\nexport * from "./lib/a/index";\\n');
 fs.writeFileSync(polyfillPath('./a/b.js'), 'module.exports=require("../lib/a/b/index.js");\\n');
-fs.writeFileSync(polyfillPath('./a/b.d.ts'), 'export * from "../lib/a/b/index";\\n');
+fs.writeFileSync(polyfillPath('./a/b.d.ts'), 'export { default } from "../lib/a/b/index";\\nexport * from "../lib/a/b/index";\\n');
 fs.writeFileSync(polyfillPath('./a/b/c.js'), 'module.exports=require("../../lib/a/b/c.js");\\n');
-fs.writeFileSync(polyfillPath('./a/b/c.d.ts'), 'export * from "../../lib/a/b/c";\\n');
+fs.writeFileSync(polyfillPath('./a/b/c.d.ts'), 'export { default } from "../../lib/a/b/c";\\nexport * from "../../lib/a/b/c";\\n');
 fs.writeFileSync(polyfillPath('./d.js'), 'module.exports=require("./lib/d.js");\\n');
-fs.writeFileSync(polyfillPath('./d.d.ts'), 'export * from "./lib/d";\\n');
+fs.writeFileSync(polyfillPath('./d.d.ts'), 'export { default } from "./lib/d";\\nexport * from "./lib/d";\\n');
 `,
       polyfillPackage(pkgDir, { tsDeclaration: true })
     )

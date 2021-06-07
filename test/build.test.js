@@ -1,6 +1,6 @@
-import fs from 'fs'
-import { polyfillPackage } from '../build.js'
-import assertEqualDiff from './assertEqualDiff.js'
+import fs from 'fs';
+import { polyfillPackage } from '../build.js';
+import assertEqualDiff from './assertEqualDiff.js';
 
 const expectedScriptHead = `#!/usr/bin/env node
 'use strict';
@@ -15,47 +15,54 @@ if (process.cwd().indexOf('node_modules') === -1) {
 function polyfillPath(posixPath) {
   return path.join.apply(null, posixPath.split(path.posix.sep));
 }
-`
+`;
 
 export default {
   ['first time polyfill'](pkgDir) {
-    fs.writeFileSync(`${pkgDir}/package.json`, `{
+    fs.writeFileSync(
+      `${pkgDir}/package.json`,
+      `{
       "name": "polyfill-exports-testing",
       "exports": {
         "./foo": "./lib/foo.js",
         "./bar/*": "./lib/bar/*.js"
       }
-    }`)
+    }`
+    );
 
     assertEqualDiff(
-`${expectedScriptHead}
+      `${expectedScriptHead}
 fs.writeFileSync(polyfillPath('./foo.js'), 'module.exports=require("./lib/foo.js");\\n');
 fs.symlinkSync(polyfillPath('./lib/bar'), polyfillPath('./bar'), process.platform === 'win32' ? 'junction' : 'dir');
 `,
       polyfillPackage(pkgDir)
-    )
+    );
   },
 
   ['ignore "."'](pkgDir) {
-    fs.writeFileSync(`${pkgDir}/package.json`, `{
+    fs.writeFileSync(
+      `${pkgDir}/package.json`,
+      `{
       "name": "polyfill-exports-testing",
       "exports": {
         ".": "./lib/index.js",
         "./foo": "./lib/foo.js"
       }
-    }`)
-
+    }`
+    );
 
     assertEqualDiff(
-`${expectedScriptHead}
+      `${expectedScriptHead}
 fs.writeFileSync(polyfillPath('./foo.js'), 'module.exports=require("./lib/foo.js");\\n');
 `,
       polyfillPackage(pkgDir)
-    )
+    );
   },
 
   ['conditional export order'](pkgDir) {
-    fs.writeFileSync(`${pkgDir}/package.json`, `{
+    fs.writeFileSync(
+      `${pkgDir}/package.json`,
+      `{
       "name": "polyfill-exports-testing",
       "exports": {
         "./foo": {
@@ -72,30 +79,34 @@ fs.writeFileSync(polyfillPath('./foo.js'), 'module.exports=require("./lib/foo.js
           "default": "./lib/baz.js"
         }
       }
-    }`)
+    }`
+    );
 
     assertEqualDiff(
-`${expectedScriptHead}
+      `${expectedScriptHead}
 fs.writeFileSync(polyfillPath('./foo.js'), 'module.exports=require("./lib/foo.cjs");\\n');
 fs.writeFileSync(polyfillPath('./bar.js'), 'module.exports=require("./lib/bar.js");\\n');
 fs.writeFileSync(polyfillPath('./baz.js'), 'module.exports=require("./lib/baz.js");\\n');
 `,
       polyfillPackage(pkgDir)
-    )
+    );
   },
 
   ['handle non-shallow path'](pkgDir) {
-    fs.writeFileSync(`${pkgDir}/package.json`, `{
+    fs.writeFileSync(
+      `${pkgDir}/package.json`,
+      `{
       "name": "polyfill-exports-testing",
       "exports": {
         "./deep/foo": "./lib/deep/foo.js",
         "./really/deep/bar": "./lib/really/deep/bar.js",
         "./really/deep/baz/*": "./lib/really/deep/baz/*.js"
       }
-    }`)
+    }`
+    );
 
     assertEqualDiff(
-`${expectedScriptHead}
+      `${expectedScriptHead}
 fs.mkdirSync(polyfillPath('./deep'));
 fs.mkdirSync(polyfillPath('./really'));
 fs.mkdirSync(polyfillPath('./really/deep'));
@@ -105,11 +116,13 @@ fs.writeFileSync(polyfillPath('./really/deep/bar.js'), 'module.exports=require("
 fs.symlinkSync(polyfillPath('../../lib/really/deep/baz'), polyfillPath('./really/deep/baz'), process.platform === 'win32' ? 'junction' : 'dir');
 `,
       polyfillPackage(pkgDir)
-    )
+    );
   },
 
   ['nested subpathes'](pkgDir) {
-    fs.writeFileSync(`${pkgDir}/package.json`, `{
+    fs.writeFileSync(
+      `${pkgDir}/package.json`,
+      `{
       "name": "polyfill-exports-testing",
       "exports": {
         "./a": "./lib/a/index.js",
@@ -117,10 +130,11 @@ fs.symlinkSync(polyfillPath('../../lib/really/deep/baz'), polyfillPath('./really
         "./a/b/c": "./lib/a/b/c.js",
         "./a/b/d/*": "./lib/a/b/d/*.js"
       }
-    }`)
+    }`
+    );
 
     assertEqualDiff(
-`${expectedScriptHead}
+      `${expectedScriptHead}
 fs.mkdirSync(polyfillPath('./a'));
 fs.mkdirSync(polyfillPath('./a/b'));
 
@@ -130,11 +144,13 @@ fs.writeFileSync(polyfillPath('./a/b/c.js'), 'module.exports=require("../../lib/
 fs.symlinkSync(polyfillPath('../../lib/a/b/d'), polyfillPath('./a/b/d'), process.platform === 'win32' ? 'junction' : 'dir');
 `,
       polyfillPackage(pkgDir)
-    )
+    );
   },
 
   ['with tsDeclaration option set to true'](pkgDir) {
-    fs.writeFileSync(`${pkgDir}/package.json`, `{
+    fs.writeFileSync(
+      `${pkgDir}/package.json`,
+      `{
       "name": "polyfill-exports-testing",
       "exports": {
         "./a": "./lib/a/index.js",
@@ -142,10 +158,11 @@ fs.symlinkSync(polyfillPath('../../lib/a/b/d'), polyfillPath('./a/b/d'), process
         "./a/b/c": "./lib/a/b/c.js",
         "./d": "./lib/d.js"
       }
-    }`)
+    }`
+    );
 
     assertEqualDiff(
-`${expectedScriptHead}
+      `${expectedScriptHead}
 fs.mkdirSync(polyfillPath('./a'));
 fs.mkdirSync(polyfillPath('./a/b'));
 
@@ -159,20 +176,23 @@ fs.writeFileSync(polyfillPath('./d.js'), 'module.exports=require("./lib/d.js");\
 fs.writeFileSync(polyfillPath('./d.d.ts'), 'export { default } from "./lib/d";\\nexport * from "./lib/d";\\n');
 `,
       polyfillPackage(pkgDir, { tsDeclaration: true })
-    )
+    );
   },
 
   ['with moduleOnly option set to false'](pkgDir) {
-    fs.writeFileSync(`${pkgDir}/package.json`, `{
+    fs.writeFileSync(
+      `${pkgDir}/package.json`,
+      `{
       "name": "polyfill-exports-testing",
       "exports": {
         "./foo": "./lib/foo.js",
         "./bar/*": "./lib/bar/*.js"
       }
-    }`)
+    }`
+    );
 
     assertEqualDiff(
-`#!/usr/bin/env node
+      `#!/usr/bin/env node
 'use strict';
 
 var fs = require('fs');
@@ -186,6 +206,6 @@ fs.writeFileSync(polyfillPath('./foo.js'), 'module.exports=require("./lib/foo.js
 fs.symlinkSync(polyfillPath('./lib/bar'), polyfillPath('./bar'), process.platform === 'win32' ? 'junction' : 'dir');
 `,
       polyfillPackage(pkgDir, { moduleOnly: false })
-    )
+    );
   },
-}
+};

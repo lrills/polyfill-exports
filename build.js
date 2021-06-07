@@ -37,7 +37,7 @@ export function polyfillExports(exports, { tsDeclaration=false, moduleOnly=true 
         : undefined
 
       if (targetSubpath) {
-        const entryDir = dirname(subpath)
+        const entryDir = dirname(subpath.replace(/\/\*$/, ''))
 
         let dir = entryDir
         while (dir !== '.' && !prerequisiteDirs.has(dir)) {
@@ -60,6 +60,8 @@ export function polyfillExports(exports, { tsDeclaration=false, moduleOnly=true 
     return undefined
   }
 
+// match pattern like "./foo/*.mjs"
+const subpathPatternMatcher = /\/\*\.[^\/]+$/
 
   const script =
 `#!/usr/bin/env node
@@ -88,9 +90,14 @@ ${
 ${
   linkPairs
     .reduce((commands, [subpath, target]) => {
-      if (subpath[subpath.length - 1] === '/') {
+      if (subpath.slice(-2) === '/*' && subpathPatternMatcher.test(target)) {
         // subpath is a folder
-        commands.push(symlinkCode(target, subpath.slice(0, -1)))
+        commands.push(
+          symlinkCode(
+            target.replace(subpathPatternMatcher, ''),
+            subpath.slice(0, -2)
+          )
+        )
       } else {
         commands.push(symlinkCode(target, `${subpath}.js`))
         if (tsDeclaration) {

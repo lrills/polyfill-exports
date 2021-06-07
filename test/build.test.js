@@ -13,7 +13,7 @@ if (process.cwd().indexOf('node_modules') === -1) {
 }
 
 function polyfillPath(posixPath) {
-  return path.join(posixPath.split(path.posix.sep));
+  return path.join.apply(null, posixPath.split(path.posix.sep));
 }
 `
 
@@ -23,7 +23,7 @@ export default {
       "name": "polyfill-exports-testing",
       "exports": {
         "./foo": "./lib/foo.js",
-        "./bar/": "./lib/bar/"
+        "./bar/*": "./lib/bar/*.js"
       }
     }`)
 
@@ -90,7 +90,7 @@ fs.symlinkSync(polyfillPath('./lib/baz.js'), polyfillPath('./baz.js'));
       "exports": {
         "./deep/foo": "./lib/deep/foo.js",
         "./really/deep/bar": "./lib/really/deep/bar.js",
-        "./really/deep/baz/": "./lib/really/deep/baz/"
+        "./really/deep/baz/*": "./lib/really/deep/baz/*.js"
       }
     }`)
 
@@ -115,7 +115,7 @@ fs.symlinkSync(polyfillPath('../../lib/really/deep/baz'), polyfillPath('./really
         "./a": "./lib/a/index.js",
         "./a/b": "./lib/a/b/index.js",
         "./a/b/c": "./lib/a/b/c.js",
-        "./a/b/d/": "./lib/a/b/d/"
+        "./a/b/d/*": "./lib/a/b/d/*.js"
       }
     }`)
 
@@ -167,7 +167,7 @@ fs.symlinkSync(polyfillPath('./lib/d.d.ts'), polyfillPath('./d.d.ts'));
       "name": "polyfill-exports-testing",
       "exports": {
         "./foo": "./lib/foo.js",
-        "./bar/": "./lib/bar/"
+        "./bar/*": "./lib/bar/*.js"
       }
     }`)
 
@@ -180,7 +180,7 @@ var fs = require('fs');
 var path = require('path');
 
 function polyfillPath(posixPath) {
-  return path.join(posixPath.split(path.posix.sep));
+  return path.join.apply(null, posixPath.split(path.posix.sep));
 }
 
 fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));

@@ -18,7 +18,7 @@ if (process.cwd().indexOf('node_modules') === -1) {
 }
 
 function polyfillPath(posixPath) {
-  return path.join(posixPath.split(path.posix.sep));
+  return path.join.apply(null, posixPath.split(path.posix.sep));
 }
 `
 
@@ -134,7 +134,7 @@ var fs = require('fs');
 var path = require('path');
 
 function polyfillPath(posixPath) {
-  return path.join(posixPath.split(path.posix.sep));
+  return path.join.apply(null, posixPath.split(path.posix.sep));
 }
 
 fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
@@ -158,7 +158,7 @@ var fs = require('fs');
 var path = require('path');
 
 function polyfillPath(posixPath) {
-  return path.join(posixPath.split(path.posix.sep));
+  return path.join.apply(null, posixPath.split(path.posix.sep));
 }
 
 fs.symlinkSync(polyfillPath('./lib/foo.js'), polyfillPath('./foo.js'));
